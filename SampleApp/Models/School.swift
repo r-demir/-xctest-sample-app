@@ -18,12 +18,23 @@ struct School {
     /// The top students are defined as students with a GPA >= 4.0.
     var topStudents: [Student] { students(withGPALimit: 4.0) }
     
+    static var didComplete = false
+    
     init() { }
     
     init(students: [Student]) {
         self.init()
         self.students = students
     }
+    
+    func doSomethingAsynchronous(queue: DispatchQueue = DispatchQueue(label: "some queue")) {
+        School.didComplete = false
+        queue.async {
+            sleep(1)
+            School.didComplete = true
+        }
+    }
+
     
 }
 

@@ -53,13 +53,46 @@ class SchoolTests: XCTestCase {
       
     /// Retrieving the alumni should fetch the two alumni for the school.
      func testRetrieveAlumni() {
+        var result: ([Student]?, Error?)?
+        
+        // Create the expectation.
+        let expectation = self.expectation(description: "Waiting for the retrieveAlumni call to complete.")
+        
         School(students: []).retrieveAlumni { (students, error) in
-            guard error == nil else {
+            result = (students, error)
+            expectation.fulfill()
+        }
+        
+        // Wait for expectations for a maximum of 5 seconds.
+        waitForExpectations(timeout: 5) { error in
+            XCTAssertNil(error)
+            
+            // Http request succeeded, expect error is nil!
+            guard result?.1 == nil else {
                 XCTFail()
                 return
             }
-            XCTAssertEqual(students?.count ?? 0, 2)
+            XCTAssertEqual(result?.0?.count ?? 0, 3)
         }
-        
      }
+    
+    
+    func testDoSomethingAsynhronous() {
+        // Create our test queue
+        let queue = DispatchQueue(label: "test-queue")
+        
+        // didComplete is initially false.
+        XCTAssertFalse(School.didComplete)
+            
+        // Inject our test queue.
+        School(students: []).doSomethingAsynchronous(queue: queue)
+        
+        // Synchronize the queue to wait for it to complete.
+        queue.sync { /* Do nothing, just synchronize */ }
+        
+        // didComplete should now be true.
+        XCTAssertTrue(School.didComplete)
+    }
+    
+    
 }
