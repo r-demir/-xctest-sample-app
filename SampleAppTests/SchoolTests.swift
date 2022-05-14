@@ -59,7 +59,11 @@ class SchoolTests: XCTestCase {
         let expectation = self.expectation(description: "Waiting for the retrieveAlumni call to complete.")
         
         School(students: []).retrieveAlumni { (students, error) in
-            result = (students, error)
+            guard error == nil else {
+                XCTFail()
+                return
+            }
+            result = (students, nil)
             expectation.fulfill()
         }
         
