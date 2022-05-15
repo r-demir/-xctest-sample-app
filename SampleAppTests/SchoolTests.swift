@@ -51,36 +51,51 @@ class SchoolTests: XCTestCase {
         XCTAssertEqual(topStudents.first?.name, "#2")
     }
       
-    /// Retrieving the alumni should fetch the two alumni for the school.
-     func testRetrieveAlumni() {
+     // Retrieving the alumni should fetch the two alumni for the school.
+    func testRetrieveAlumni() {
         var result: ([Student]?, Error?)?
         
-        // Create the expectation.
+        //MARK: create the expectation.
         let expectation = self.expectation(description: "Waiting for the retrieveAlumni call to complete.")
         
         School(students: []).retrieveAlumni { (students, error) in
-            guard error == nil else {
-                XCTFail()
-                return
-            }
-            result = (students, nil)
+            result = (students, error)
             expectation.fulfill()
         }
         
-        // Wait for expectations for a maximum of 5 seconds.
+        //MARK: wait for expectations for a maximum of 5 seconds.
         waitForExpectations(timeout: 5) { error in
+            //MARK: error nil check insertion
             XCTAssertNil(error)
             
-            // Http request succeeded, expect error is nil!
+            //MARK: http request succeeded, expect error is nil
             guard result?.1 == nil else {
                 XCTFail()
                 return
             }
             XCTAssertEqual(result?.0?.count ?? 0, 3)
         }
-     }
+    }
+    
+    // Retrieving the alumni should not fail.
+    func testRetrieveAlumniNoFailure() {
+        let school = School(students: [])
+            
+        // Create the expectation.
+        let expectation = self.expectation(description: "Expecting the retrieveAlumni call not to fail.")
+        expectation.isInverted = true
+            
+        // Perform the asynchronous call.
+        school.retrieveAlumni(success: {  /* ignore success */ },
+                              failure: {  expectation.fulfill() })
+            
+        // Wait for expectations for a maximum of 2 seconds.
+        waitForExpectations(timeout: 2, handler: nil)
+    }
     
     
+    // Do something asynchronous and set `didComplete` to true when finished.
+
     func testDoSomethingAsynhronous() {
         // Create our test queue
         let queue = DispatchQueue(label: "test-queue")

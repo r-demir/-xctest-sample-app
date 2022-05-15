@@ -53,4 +53,15 @@ extension School {
         }
     }
     
+    // Retrieving the alumni should not fail.
+    func retrieveAlumni(success: (()->())?, failure: (()->())?) {
+        Alamofire.request("https://mocki.io/v1/72744af7-2b4c-44e9-a346-311d050b0ae9").responseArray { (response: DataResponse<[Student]>) in
+            guard response.error == nil else {
+                failure?()
+                return
+            }
+            success?()
+        }
+    }
+    
 }
